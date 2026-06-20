@@ -17,13 +17,42 @@
     header {
       background: #4f46e5;
       color: #fff;
-      padding: 20px 0;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: bold;
-      letter-spacing: 0.05em;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
+
+    .header-title { font-size: 1.3rem; font-weight: bold; letter-spacing: 0.05em; }
+
+    .auth-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .auth-area .email-label {
+      opacity: 0.85;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-small {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1.5px solid rgba(255,255,255,0.7);
+      background: transparent;
+      color: #fff;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .btn-small:hover { background: rgba(255,255,255,0.15); }
 
     .container {
       max-width: 680px;
@@ -31,24 +60,17 @@
       padding: 0 16px;
     }
 
-    /* 投稿フォーム */
-    .form-card {
+    .card {
       background: #fff;
       border-radius: 12px;
       padding: 24px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
-    .form-card h2 {
-      font-size: 1rem;
-      color: #4f46e5;
-      margin-bottom: 16px;
-    }
+    .card h2 { font-size: 1rem; color: #4f46e5; margin-bottom: 16px; }
 
-    .form-group {
-      margin-bottom: 14px;
-    }
+    .form-group { margin-bottom: 14px; }
 
     label {
       display: block;
@@ -58,8 +80,7 @@
       margin-bottom: 6px;
     }
 
-    input[type="text"],
-    textarea {
+    input[type="text"], textarea {
       width: 100%;
       padding: 10px 12px;
       border: 1.5px solid #ddd;
@@ -70,19 +91,15 @@
       background: #fafafa;
     }
 
-    input[type="text"]:focus,
-    textarea:focus {
+    input:focus, textarea:focus {
       outline: none;
       border-color: #4f46e5;
       background: #fff;
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 90px;
-    }
+    textarea { resize: vertical; min-height: 90px; }
 
-    .btn-submit {
+    .btn-primary {
       width: 100%;
       padding: 12px;
       background: #4f46e5;
@@ -94,26 +111,14 @@
       cursor: pointer;
       transition: background 0.2s, opacity 0.2s;
     }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    .btn-submit:hover { background: #4338ca; }
-    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
-
-    .status-msg {
-      font-size: 0.85rem;
-      margin-top: 10px;
-      text-align: center;
-      min-height: 1.2em;
-    }
+    .status-msg { font-size: 0.85rem; margin-top: 10px; text-align: center; min-height: 1.2em; }
     .status-msg.ok  { color: #16a34a; }
     .status-msg.err { color: #dc2626; }
 
-    /* 投稿一覧 */
-    .posts-header {
-      font-size: 0.95rem;
-      font-weight: bold;
-      color: #666;
-      margin-bottom: 14px;
-    }
+    .posts-header { font-size: 0.95rem; font-weight: bold; color: #666; margin-bottom: 14px; }
 
     #posts-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -130,23 +135,9 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .post-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .post-name {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #4f46e5;
-    }
-
-    .post-date {
-      font-size: 0.78rem;
-      color: #999;
-    }
+    .post-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .post-name { font-weight: 700; font-size: 0.95rem; color: #4f46e5; }
+    .post-date { font-size: 0.78rem; color: #999; }
 
     .post-body {
       font-size: 0.95rem;
@@ -155,29 +146,23 @@
       word-break: break-word;
     }
 
-    .loading-text {
-      text-align: center;
-      color: #aaa;
-      padding: 24px 0;
-      font-size: 0.9rem;
-    }
-
-    .empty-text {
-      text-align: center;
-      color: #bbb;
-      padding: 32px 0;
-      font-size: 0.9rem;
-    }
+    .loading-text { text-align: center; color: #aaa; padding: 24px 0; font-size: 0.9rem; }
+    .empty-text   { text-align: center; color: #bbb; padding: 32px 0; font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
-<header>📌 掲示板</header>
+<header>
+  <span class="header-title">📌 掲示板</span>
+  <div class="auth-area" id="auth-area">
+    <!-- JS で書き換え -->
+  </div>
+</header>
 
 <div class="container">
 
   <!-- 投稿フォーム -->
-  <div class="form-card">
+  <div class="card">
     <h2>ひとこと投稿</h2>
     <div class="form-group">
       <label for="inp-name">名前</label>
@@ -187,8 +172,8 @@
       <label for="inp-msg">メッセージ</label>
       <textarea id="inp-msg" placeholder="ひとこと書いてください" maxlength="500"></textarea>
     </div>
-    <button class="btn-submit" id="btn-post">投稿する</button>
-    <p class="status-msg" id="status-msg"></p>
+    <button class="btn-primary" id="btn-post">投稿する</button>
+    <p class="status-msg" id="post-status"></p>
   </div>
 
   <!-- 投稿一覧 -->
@@ -200,18 +185,43 @@
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-  const SUPABASE_URL    = 'https://rppnoygstaoqhcetvkyu.supabase.co'
-  const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcG5veWdzdGFvcWhjZXR2a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjYwNzUsImV4cCI6MjA5NzUwMjA3NX0.KMaTKUllWeAzrgjvF5eA0s0GYhWtPDN-34u0NXTRUqQ'
-  const TABLE           = 'messages'
+  const SUPABASE_URL  = 'https://rppnoygstaoqhcetvkyu.supabase.co'
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcG5veWdzdGFvcWhjZXR2a3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjYwNzUsImV4cCI6MjA5NzUwMjA3NX0.KMaTKUllWeAzrgjvF5eA0s0GYhWtPDN-34u0NXTRUqQ'
+  const TABLE         = 'messages'
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
 
-  const btnPost   = document.getElementById('btn-post')
-  const statusMsg = document.getElementById('status-msg')
+  const authArea  = document.getElementById('auth-area')
   const postsList = document.getElementById('posts-list')
   const postsHdr  = document.getElementById('posts-header')
 
-  /* ---------- 投稿一覧の取得 ---------- */
+  /* ===== 認証状態 UI ===== */
+  function updateAuthUI(user) {
+    if (user) {
+      authArea.innerHTML = `
+        <span class="email-label">${esc(user.email)}</span>
+        <button class="btn-small" id="btn-logout">ログアウト</button>
+      `
+      document.getElementById('btn-logout').addEventListener('click', async () => {
+        await supabase.auth.signOut()
+      })
+    } else {
+      authArea.innerHTML = `
+        <span style="opacity:0.8;font-size:0.82rem;">未ログイン</span>
+        <a class="btn-small" href="login.html">ログイン</a>
+      `
+    }
+  }
+
+  /* ===== 初期セッション確認 ===== */
+  const { data: { session } } = await supabase.auth.getSession()
+  updateAuthUI(session?.user ?? null)
+
+  supabase.auth.onAuthStateChange((_e, session) => {
+    updateAuthUI(session?.user ?? null)
+  })
+
+  /* ===== 投稿一覧 ===== */
   async function loadPosts() {
     const { data, error } = await supabase
       .from(TABLE)
@@ -248,37 +258,35 @@
     }).join('')
   }
 
-  /* ---------- 投稿送信 ---------- */
-  btnPost.addEventListener('click', async () => {
+  /* ===== 投稿送信 ===== */
+  document.getElementById('btn-post').addEventListener('click', async () => {
     const name    = document.getElementById('inp-name').value.trim()
     const message = document.getElementById('inp-msg').value.trim()
+    const status  = document.getElementById('post-status')
 
-    if (!name)    { showStatus('名前を入力してください', 'err'); return }
-    if (!message) { showStatus('メッセージを入力してください', 'err'); return }
+    if (!name)    { setMsg(status, '名前を入力してください', 'err'); return }
+    if (!message) { setMsg(status, 'メッセージを入力してください', 'err'); return }
 
-    btnPost.disabled = true
-    showStatus('送信中…', '')
+    document.getElementById('btn-post').disabled = true
+    setMsg(status, '送信中…', '')
 
     const { error } = await supabase.from(TABLE).insert({ room: 'general', name, body: message })
 
     if (error) {
-      showStatus(`エラー: ${error.message}`, 'err')
-      btnPost.disabled = false
-      return
+      setMsg(status, `エラー: ${error.message}`, 'err')
+    } else {
+      document.getElementById('inp-name').value = ''
+      document.getElementById('inp-msg').value  = ''
+      setMsg(status, '投稿しました！', 'ok')
+      await loadPosts()
     }
-
-    document.getElementById('inp-name').value = ''
-    document.getElementById('inp-msg').value  = ''
-    showStatus('投稿しました！', 'ok')
-    btnPost.disabled = false
-
-    await loadPosts()
+    document.getElementById('btn-post').disabled = false
   })
 
-  /* ---------- ユーティリティ ---------- */
-  function showStatus(msg, cls) {
-    statusMsg.textContent = msg
-    statusMsg.className   = `status-msg ${cls}`
+  /* ===== ユーティリティ ===== */
+  function setMsg(el, msg, cls) {
+    el.textContent = msg
+    el.className   = `status-msg ${cls}`
   }
 
   function esc(str) {
@@ -287,7 +295,6 @@
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;')
   }
 
-  /* ---------- 初期ロード ---------- */
   loadPosts()
 </script>
 
