@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>掲示板</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #4f46e5;
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+
+    /* 投稿フォーム */
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      margin-bottom: 32px;
+    }
+
+    .form-card h2 {
+      font-size: 1rem;
+      color: #4f46e5;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #4f46e5;
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn-submit:hover { background: #4338ca; }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .status-msg {
+      font-size: 0.85rem;
+      margin-top: 10px;
+      text-align: center;
+      min-height: 1.2em;
+    }
+    .status-msg.ok  { color: #16a34a; }
+    .status-msg.err { color: #dc2626; }
+
+    /* 投稿一覧 */
+    .posts-header {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 14px;
+    }
+
+    #posts-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .post-item {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .post-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #4f46e5;
+    }
+
+    .post-date {
+      font-size: 0.78rem;
+      color: #999;
+    }
+
+    .post-body {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .loading-text {
+      text-align: center;
+      color: #aaa;
+      padding: 24px 0;
+      font-size: 0.9rem;
+    }
+
+    .empty-text {
+      text-align: center;
+      color: #bbb;
+      padding: 32px 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>📌 掲示板</header>
+
+<div class="container">
+
+  <!-- 投稿フォーム -->
+  <div class="form-card">
+    <h2>ひとこと投稿</h2>
+    <div class="form-group">
+      <label for="inp-name">名前</label>
+      <input type="text" id="inp-name" placeholder="あなたの名前" maxlength="50">
+    </div>
+    <div class="form-group">
+      <label for="inp-msg">メッセージ</label>
+      <textarea id="inp-msg" placeholder="ひとこと書いてください" maxlength="500"></textarea>
+    </div>
+    <button class="btn-submit" id="btn-post">投稿する</button>
+    <p class="status-msg" id="status-msg"></p>
+  </div>
+
+  <!-- 投稿一覧 -->
+  <div class="posts-header" id="posts-header"></div>
+  <div id="posts-list"><p class="loading-text">読み込み中…</p></div>
+
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+  const SUPABASE_URL    = 'https://kcfnhhcoasgculonbbtx.supabase.co'
+  const SUPABASE_ANON   = 'sb_publishable_JU-uguITndR8dzhEsXFCvw_nmWGu-wq'
+  const TABLE           = 'messages'
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
+
+  const btnPost   = document.getElementById('btn-post')
+  const statusMsg = document.getElementById('status-msg')
+  const postsList = document.getElementById('posts-list')
+  const postsHdr  = document.getElementById('posts-header')
+
+  /* ---------- 投稿一覧の取得 ---------- */
+  async function loadPosts() {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100)
+
+    if (error) {
+      postsList.innerHTML = `<p class="empty-text">⚠️ 読み込みエラー: ${error.message}</p>`
+      return
+    }
+
+    postsHdr.textContent = data.length ? `${data.length} 件の投稿` : ''
+
+    if (!data.length) {
+      postsList.innerHTML = `<p class="empty-text">まだ投稿がありません。最初のひとことを！</p>`
+      return
+    }
+
+    postsList.innerHTML = data.map(p => {
+      const dt = new Date(p.created_at)
+      const dateStr = dt.toLocaleDateString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit' })
+                    + ' ' + dt.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' })
+      return `
+        <div class="post-item">
+          <div class="post-meta">
+            <span class="post-name">${esc(p.name)}</span>
+            <span class="post-date">${dateStr}</span>
+          </div>
+          <div class="post-body">${esc(p.message)}</div>
+        </div>`
+    }).join('')
+  }
+
+  /* ---------- 投稿送信 ---------- */
+  btnPost.addEventListener('click', async () => {
+    const name    = document.getElementById('inp-name').value.trim()
+    const message = document.getElementById('inp-msg').value.trim()
+
+    if (!name)    { showStatus('名前を入力してください', 'err'); return }
+    if (!message) { showStatus('メッセージを入力してください', 'err'); return }
+
+    btnPost.disabled = true
+    showStatus('送信中…', '')
+
+    const { error } = await supabase.from(TABLE).insert({ name, message })
+
+    if (error) {
+      showStatus(`エラー: ${error.message}`, 'err')
+      btnPost.disabled = false
+      return
+    }
+
+    document.getElementById('inp-name').value = ''
+    document.getElementById('inp-msg').value  = ''
+    showStatus('投稿しました！', 'ok')
+    btnPost.disabled = false
+
+    await loadPosts()
+  })
+
+  /* ---------- ユーティリティ ---------- */
+  function showStatus(msg, cls) {
+    statusMsg.textContent = msg
+    statusMsg.className   = `status-msg ${cls}`
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+  }
+
+  /* ---------- 初期ロード ---------- */
+  loadPosts()
+</script>
+
+</body>
+</html>
