@@ -216,7 +216,7 @@
     const { data, error } = await supabase
       .from(TABLE)
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .limit(100)
 
     if (error) {
@@ -232,16 +232,18 @@
     }
 
     postsList.innerHTML = data.map(p => {
-      const dt = new Date(p.created_at)
-      const dateStr = dt.toLocaleDateString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit' })
-                    + ' ' + dt.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' })
+      const dt = p.created_at ? new Date(p.created_at) : null
+      const dateStr = dt
+        ? dt.toLocaleDateString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit' })
+          + ' ' + dt.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' })
+        : ''
       return `
         <div class="post-item">
           <div class="post-meta">
             <span class="post-name">${esc(p.name)}</span>
-            <span class="post-date">${dateStr}</span>
+            ${dateStr ? `<span class="post-date">${dateStr}</span>` : ''}
           </div>
-          <div class="post-body">${esc(p.message)}</div>
+          <div class="post-body">${esc(p.body)}</div>
         </div>`
     }).join('')
   }
@@ -257,7 +259,7 @@
     btnPost.disabled = true
     showStatus('送信中…', '')
 
-    const { error } = await supabase.from(TABLE).insert({ name, message })
+    const { error } = await supabase.from(TABLE).insert({ room: 'general', name, body: message })
 
     if (error) {
       showStatus(`エラー: ${error.message}`, 'err')
